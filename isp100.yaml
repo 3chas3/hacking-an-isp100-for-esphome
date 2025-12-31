@@ -1,0 +1,85 @@
+esphome:
+  name: isp100
+
+esp8266:
+  board: nodemcuv2
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: "Guest"
+  password: "password"
+  min_auth_mode: WPA2
+  fast_connect: true
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "isp100 Fallback Hotspot"
+    password: "password"
+
+captive_portal:
+
+
+switch:
+  - platform: gpio
+    name: "Outlet"
+    pin:
+      number: D3
+      mode: output
+    id: relay
+
+output:
+  - platform: gpio
+    inverted: true
+    pin:
+      number: D0
+      mode: output
+    id: LED_green
+  - platform: gpio
+    inverted: true
+    pin:
+      number: D1
+      mode: output
+    id: LED_red
+
+binary_sensor:
+  - platform: gpio
+    name: "Plug Attached?"
+    pin:
+      number: D5
+      mode: input
+      inverted: true
+    id: plug
+  - platform: gpio
+    pin:
+      number: D6
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    on_release:
+      then:
+        - switch.toggle: relay
+    id: button
+
+interval:
+  - interval: 1s
+    then:
+      if:
+        condition:
+          wifi.connected:
+        then:
+          - output.turn_off: LED_red
+          - output.turn_on: LED_green
+        else:
+          - output.turn_on: LED_red
+          - output.turn_off: LED_green
