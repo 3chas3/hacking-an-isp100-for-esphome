@@ -33,7 +33,7 @@ switch:
   - platform: gpio
     name: "Outlet"
     pin:
-      number: D3
+      number: D8
       mode: output
     id: relay
 
